@@ -1,0 +1,80 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Trophy, Crown, Award } from "lucide-react";
+
+export default function LeaderboardEntry({ user, rank, maxPoints }) {
+  const getRankBadge = () => {
+    if (rank === 1) {
+      return (
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
+          <Crown className="w-5 h-5 text-white" />
+        </div>
+      );
+    }
+    if (rank === 2) {
+      return (
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center shadow-lg">
+          <Trophy className="w-5 h-5 text-white" />
+        </div>
+      );
+    }
+    if (rank === 3) {
+      return (
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center shadow-lg">
+          <Award className="w-5 h-5 text-white" />
+        </div>
+      );
+    }
+    return (
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-bold text-gray-700">
+        #{rank}
+      </div>
+    );
+  };
+
+  const getCardStyle = () => {
+    if (rank === 1) return "border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-white shadow-2xl";
+    if (rank === 2) return "border-2 border-gray-400 bg-gradient-to-br from-gray-50 to-white shadow-xl";
+    if (rank === 3) return "border-2 border-amber-600 bg-gradient-to-br from-amber-50 to-white shadow-xl";
+    return "border border-gray-200 bg-white shadow-md";
+  };
+
+  const progressPercentage = maxPoints > 0 ? (user.points / maxPoints) * 100 : 0;
+
+  return (
+    <Card className={`${getCardStyle()} p-4 hover:scale-[1.02] transition-all duration-300`}>
+      <div className="flex items-center gap-4">
+        {/* Rank Badge */}
+        {getRankBadge()}
+
+        {/* User Info */}
+        <Avatar className="w-12 h-12 border-2 border-[hsl(150,80%,40%)]">
+          <AvatarImage src={user.avatar_url} />
+          <AvatarFallback className="bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white font-semibold">
+            {(user.username || user.team_name || 'U')[0].toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+
+        {/* Name and Progress */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-1">
+            <p className="font-bold text-gray-900 truncate">
+              {user.team_name || user.username || 'Anonymous'}
+            </p>
+            <Badge className="bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white border-0 ml-2">
+              {user.points} pts
+            </Badge>
+          </div>
+          
+          <Progress 
+            value={progressPercentage} 
+            className="h-2"
+          />
+        </div>
+      </div>
+    </Card>
+  );
+}
