@@ -1,0 +1,160 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Target, Heart, Globe, Zap, Shield, TrendingUp } from "lucide-react";
+
+export default function MissionSection() {
+  return (
+    <section className="py-12 px-4 bg-white">
+      <div className="max-w-4xl mx-auto">
+        {/* Mission Statement */}
+        <div className="text-center mb-10">
+          <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-[hsl(150,80%,40%)]/10 to-[hsl(170,70%,45%)]/10 rounded-full">
+            <p className="text-sm font-semibold text-[hsl(150,80%,40%)]">OUR MISSION</p>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
+            Transforming UAE's Environment
+            <span className="block text-2xl bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] bg-clip-text text-transparent mt-2">
+              One Cleanup at a Time
+            </span>
+          </h2>
+          <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto">
+            GreenSpark isn't just another eco-app. We're building a movement where every citizen becomes an environmental champion. Using AI-powered verification and real rewards, we're making sustainability competitive, measurable, and rewarding.
+          </p>
+        </div>
+
+        {/* Why It Matters */}
+        <div className="mb-10">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+            Why This Matters 🌍
+          </h3>
+          
+          <div className="grid gap-4">
+            <Card className="p-5 border-l-4 border-red-500 bg-gradient-to-r from-red-50 to-white">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">The Waste Crisis</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    UAE generates <span className="font-semibold text-red-600">2.7kg of waste per person daily</span> - among the highest globally. Without action, our beaches, parks, and wildlife suffer irreversible damage.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-5 border-l-4 border-orange-500 bg-gradient-to-r from-orange-50 to-white">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Plastic Pollution</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Over <span className="font-semibold text-orange-600">8 million tons of plastic</span> enter our oceans yearly. UAE's coastal areas are increasingly affected, threatening marine life and tourism.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-5 border-l-4 border-[hsl(150,80%,40%)] bg-gradient-to-r from-[hsl(150,80%,40%)]/5 to-white">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-[hsl(150,80%,40%)]/20 flex items-center justify-center flex-shrink-0">
+                  <Heart className="w-5 h-5 text-[hsl(150,80%,40%)]" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Community Power</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    When communities unite, change happens fast. <span className="font-semibold text-[hsl(150,80%,40%)]">A single cleanup removes 50-200kg of waste</span> that would have harmed ecosystems for decades.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* What We're Changing */}
+        <div className="bg-gradient-to-br from-[hsl(150,80%,40%)]/10 via-[hsl(170,70%,45%)]/5 to-transparent rounded-2xl p-6 mb-10">
+          <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+            What We're Changing ✨
+          </h3>
+          
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] flex items-center justify-center flex-shrink-0">
+                <Zap className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 text-sm mb-1">Making It Measurable</h4>
+                <p className="text-xs text-gray-600">
+                  AI estimates waste mass and type. You see real impact: kilograms removed, CO₂ saved, ocean protection.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] flex items-center justify-center flex-shrink-0">
+                <Target className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 text-sm mb-1">Making It Competitive</h4>
+                <p className="text-xs text-gray-600">
+                  Leaderboards, tiers, badges. Compete with friends, schools, companies to become Green Champions.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] flex items-center justify-center flex-shrink-0">
+                <Globe className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 text-sm mb-1">Making It Rewarding</h4>
+                <p className="text-xs text-gray-600">
+                  Real prizes from sponsors. Monthly pools worth AED 14,000+. Your eco-action has tangible value.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] flex items-center justify-center flex-shrink-0">
+                <Shield className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 text-sm mb-1">Making It Trustworthy</h4>
+                <p className="text-xs text-gray-600">
+                  Before/after photos, GPS verification, peer review. Anti-cheating measures ensure authentic impact.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Vision */}
+        <Card className="p-6 bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] border-0 text-center">
+          <Globe className="w-12 h-12 text-white mx-auto mb-3" />
+          <h3 className="text-xl font-bold text-white mb-2">
+            Our 2025 Vision
+          </h3>
+          <p className="text-sm text-white/90 mb-4 leading-relaxed">
+            <span className="font-semibold">10,000 active warriors</span> removing <span className="font-semibold">500 tons of waste annually</span> across UAE. Every emirate has dedicated cleanup teams. Every beach, park, and community space protected by citizen guardians.
+          </p>
+          <div className="grid grid-cols-3 gap-4 mt-6">
+            <div>
+              <p className="text-2xl font-bold text-white">500t</p>
+              <p className="text-xs text-white/80">Waste Target</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">10K</p>
+              <p className="text-xs text-white/80">Warriors</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">7</p>
+              <p className="text-xs text-white/80">Emirates</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </section>
+  );
+}
