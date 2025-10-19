@@ -1,0 +1,88 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { TreePine, Recycle, Waves, Sun, Droplets, PackageX, Leaf, Trophy, Users, Clock } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+const iconMap = {
+  TreePine,
+  Recycle,
+  Waves,
+  Sun,
+  Droplets,
+  PackageX,
+  Leaf,
+};
+
+export default function ActivityCard({ activity, onSubmit }) {
+  const IconComponent = iconMap[activity.icon] || Leaf;
+  
+  const difficultyColors = {
+    Easy: "bg-green-100 text-green-800 border-green-200",
+    Medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    Hard: "bg-red-100 text-red-800 border-red-200"
+  };
+
+  const timeRemaining = activity.week_end 
+    ? formatDistanceToNow(new Date(activity.week_end), { addSuffix: true })
+    : "Ongoing";
+
+  return (
+    <Card className="group relative overflow-hidden active:scale-[0.98] transition-all duration-200 bg-white border-0 shadow-lg">
+      {/* Gradient Top Border */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)]" />
+      
+      {/* Decorative Background */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] opacity-5 rounded-full transform translate-x-12 -translate-y-12" />
+
+      <div className="p-5 relative">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] shadow-lg">
+            <IconComponent className="w-5 h-5 text-white" />
+          </div>
+          
+          <Badge className={`${difficultyColors[activity.difficulty]} border font-semibold text-xs`}>
+            {activity.difficulty}
+          </Badge>
+        </div>
+
+        {/* Content */}
+        <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">
+          {activity.title}
+        </h3>
+        
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
+          {activity.description}
+        </p>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="flex items-center gap-1 text-xs">
+            <Trophy className="w-3.5 h-3.5 text-[hsl(150,80%,40%)]" />
+            <span className="font-semibold text-[hsl(150,80%,40%)]">{activity.points}</span>
+          </div>
+          
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Users className="w-3.5 h-3.5" />
+            <span>{activity.participant_count || 0}</span>
+          </div>
+          
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Clock className="w-3.5 h-3.5" />
+            <span className="truncate">Ongoing</span>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <Button 
+          onClick={() => onSubmit(activity)}
+          className="w-full bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white hover:opacity-90 shadow-md active:scale-95 transition-all h-11"
+        >
+          Submit Now
+        </Button>
+      </div>
+    </Card>
+  );
+}
