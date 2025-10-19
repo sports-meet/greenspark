@@ -1,0 +1,136 @@
+import React, { useEffect, useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { ArrowLeft, MapPin, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import "leaflet/dist/leaflet.css";
+
+export default function HeatMap() {
+  const [center, setCenter] = useState([25.2048, 55.2708]); // Dubai
+
+  const { data: hotspots = [] } = useQuery({
+    queryKey: ['all-hotspots'],
+    queryFn: () => base44.entities.LitterHotspot.list(),
+    initialData: []
+  });
+
+  const { data: cleanups = [] } = useQuery({
+    queryKey: ['all-cleanups'],
+    queryFn: () => base44.entities.UserActivity.filter({ status: 'approved' }),
+    initialData: []
+  });
+
+  useEffect(() => {
+    if (hotspots.length > 0) {
+      setCenter([hotspots[0].location_lat, hotspots[0].location_lng]);
+    }
+  }, [hotspots]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[hsl(150,30%,98%)] to-white pb-20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Link to={createPageUrl("Home")}>
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Waste Heat Map</h1>
+            <p className="text-xs text-gray-600">Active hotspots & completed cleanups</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Legend */}
+        <Card className="p-4">
+          <h3 className="font-semibold text-gray-900 mb-3">Map Legend</h3>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-red-500" />
+              <span>Active Hotspots</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-green-500" />
+              <span>Completed Cleanups</span>
+            </div>
+          </div>
+        </Card>
+
+        {/* Map */}
+        <Card className="overflow-hidden">
+          <div style={{ height: "500px", width: "100%" }}>
+            <MapContainer
+              center={center}
+              zoom={12}
+              style={{ height: "100%", width: "100%" }}
+              scrollWheelZoom={false}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              />
+
+              {/* Hotspots */}
+              {hotspots.map((spot) => (
+                <CircleMarker
+                  key={`hotspot-${spot.id}`}
+                  center={[spot.location_lat, spot.location_lng]}
+                  radius={15}
+                  pathOptions={{ color: 'red', fillColor: 'red', fillOpacity: 0.6 }}
+                >
+                  <Popup>
+                    <div className="p-2">
+                      <p className="font-semibold text-sm">{spot.location_name}</p>
+                      <p className="text-xs text-gray-600">{spot.description}</p>
+                      <p className="text-xs text-red-600 mt-1">🔥 Active Hotspot</p>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              ))}
+
+              {/* Cleanups */}
+              {cleanups.map((cleanup) => (
+                <CircleMarker
+                  key={`cleanup-${cleanup.id}`}
+                  center={[cleanup.location_lat, cleanup.location_lng]}
+                  radius={10}
+                  pathOptions={{ color: 'green', fillColor: 'green', fillOpacity: 0.6 }}
+                >
+                  <Popup>
+                    <div className="p-2">
+                      <p className="font-semibold text-sm">{cleanup.location_name}</p>
+                      <p className="text-xs text-gray-600">{cleanup.estimated_weight_kg}kg removed</p>
+                      <p className="text-xs text-green-600 mt-1">✅ Completed</p>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              ))}
+            </MapContainer>
+          </div>
+        </Card>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="p-4 text-center">
+            <Flame className="w-8 h-8 text-red-500 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-gray-900">{hotspots.length}</p>
+            <p className="text-sm text-gray-600">Active Hotspots</p>
+          </Card>
+          
+          <Card className="p-4 text-center">
+            <MapPin className="w-8 h-8 text-green-500 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-gray-900">{cleanups.length}</p>
+            <p className="text-sm text-gray-600">Completed Cleanups</p>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
