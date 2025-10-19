@@ -1,0 +1,123 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Camera, Zap, Award, Trophy, CheckCircle } from "lucide-react";
+
+export default function HowItWorksSection() {
+  const steps = [
+    {
+      icon: Camera,
+      title: "Snap Before & After",
+      description: "Find litter, take a 'before' photo. Clean it up, take an 'after' photo. Our AI verifies the cleanup is real.",
+      color: "from-blue-500 to-cyan-500",
+      badge: "Step 1"
+    },
+    {
+      icon: Zap,
+      title: "AI Analyzes Impact",
+      description: "Advanced AI estimates waste weight, identifies materials (plastic, metal, paper), and calculates environmental impact.",
+      color: "from-purple-500 to-pink-500",
+      badge: "Step 2"
+    },
+    {
+      icon: CheckCircle,
+      title: "Community Verifies",
+      description: "Admins and veteran cleaners (5+ cleanups) review submissions. Peer validation ensures authenticity.",
+      color: "from-orange-500 to-red-500",
+      badge: "Step 3"
+    },
+    {
+      icon: Award,
+      title: "Earn Points & Climb",
+      description: "Get base points + weight bonuses + priority zone bonuses. Unlock tiers, badges, and voting rights.",
+      color: "from-green-500 to-emerald-500",
+      badge: "Step 4"
+    },
+    {
+      icon: Trophy,
+      title: "Win Real Rewards",
+      description: "Top performers share monthly prize pools. Redeem points for vouchers from eco-friendly partners.",
+      color: "from-yellow-500 to-orange-500",
+      badge: "Step 5"
+    }
+  ];
+
+  return (
+    <section className="py-12 px-4 bg-gradient-to-b from-[hsl(150,30%,98%)] to-white">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-10">
+          <div className="inline-block mb-4 px-4 py-2 bg-white rounded-full shadow-md">
+            <p className="text-sm font-semibold text-[hsl(150,80%,40%)]">HOW IT WORKS</p>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            From Cleanup to Champion
+            <span className="block text-lg text-gray-600 mt-2 font-normal">
+              Simple process, massive impact
+            </span>
+          </h2>
+        </div>
+
+        <div className="space-y-6">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                <div className="flex gap-4 p-5">
+                  {/* Icon */}
+                  <div className="flex-shrink-0">
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {step.title}
+                      </h3>
+                      <span className="text-xs font-semibold px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                        {step.badge}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Connector */}
+                {index < steps.length - 1 && (
+                  <div className="flex justify-center">
+                    <div className="w-1 h-4 bg-gradient-to-b from-gray-200 to-transparent" />
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-10 text-center">
+          <Card className="p-6 bg-gradient-to-br from-[hsl(150,80%,40%)]/5 to-[hsl(170,70%,45%)]/5 border-2 border-[hsl(150,80%,40%)]/20">
+            <p className="text-lg font-bold text-gray-900 mb-2">
+              Ready to Make a Difference?
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Join 500+ eco-warriors already cleaning UAE
+            </p>
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <CheckCircle className="w-4 h-4 text-[hsl(150,80%,40%)]" />
+              <span className="text-gray-600">No fees</span>
+              <span className="text-gray-300">•</span>
+              <CheckCircle className="w-4 h-4 text-[hsl(150,80%,40%)]" />
+              <span className="text-gray-600">Real rewards</span>
+              <span className="text-gray-300">•</span>
+              <CheckCircle className="w-4 h-4 text-[hsl(150,80%,40%)]" />
+              <span className="text-gray-600">Measurable impact</span>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </section>
+  );
+}
