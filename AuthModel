@@ -1,0 +1,204 @@
+import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Loader2, Leaf } from "lucide-react";
+
+export default function AuthModal({ isOpen, onClose, onSuccess }) {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const [signupData, setSignupData] = useState({
+    username: "",
+    email: "",
+    password: ""
+  });
+  
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: ""
+  });
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    
+    if (!signupData.username || !signupData.email || !signupData.password) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    if (signupData.password.length < 6) {
+      alert("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await base44.auth.signup({
+        email: signupData.email,
+        password: signupData.password
+      });
+
+      await base44.auth.updateMe({
+        username: signupData.username,
+        points: 0
+      });
+      
+      onSuccess();
+      onClose();
+    } catch (error) {
+      alert(error.message || "Signup failed. Please try again");
+    }
+    setIsLoading(false);
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    if (!loginData.email || !loginData.password) {
+      alert("Please enter email and password");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await base44.auth.login({
+        email: loginData.email,
+        password: loginData.password
+      });
+      
+      onSuccess();
+      onClose();
+    } catch (error) {
+      alert(error.message || "Login failed. Invalid credentials");
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] flex items-center justify-center shadow-lg">
+              <Leaf className="w-7 h-7 text-white" />
+            </div>
+            <DialogTitle className="text-2xl font-bold">Join GreenSpark</DialogTitle>
+          </div>
+        </DialogHeader>
+
+        <Tabs defaultValue="signup" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="login">Login</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="signup">
+            <form onSubmit={handleSignup} className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="signup-username">Username</Label>
+                <Input
+                  id="signup-username"
+                  value={signupData.username}
+                  onChange={(e) => setSignupData({...signupData, username: e.target.value})}
+                  placeholder="eco_warrior"
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="signup-email">Email</Label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  value={signupData.email}
+                  onChange={(e) => setSignupData({...signupData, email: e.target.value})}
+                  placeholder="you@example.com"
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="signup-password">Password</Label>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  value={signupData.password}
+                  onChange={(e) => setSignupData({...signupData, password: e.target.value})}
+                  placeholder="••••••••"
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white hover:opacity-90 shadow-lg"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="login">
+            <form onSubmit={handleLogin} className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="login-email">Email</Label>
+                <Input
+                  id="login-email"
+                  type="email"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                  placeholder="you@example.com"
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="login-password">Password</Label>
+                <Input
+                  id="login-password"
+                  type="password"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                  placeholder="••••••••"
+                  className="mt-1"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white hover:opacity-90 shadow-lg"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+}
