@@ -1,0 +1,102 @@
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, Gift, Zap, Crown } from "lucide-react";
+
+export default function PrizesSection() {
+  const { data: prizes = [] } = useQuery({
+    queryKey: ['active-prizes'],
+    queryFn: () => base44.entities.MonthlyPrize.filter({ active: true }),
+    initialData: []
+  });
+
+  const getRankIcon = (rank) => {
+    if (rank === "Top 1") return <Crown className="w-5 h-5 text-yellow-500" />;
+    if (rank === "Top 3") return <Trophy className="w-5 h-5 text-orange-500" />;
+    return <Gift className="w-5 h-5 text-purple-500" />;
+  };
+
+  const getRankColor = (rank) => {
+    if (rank === "Top 1") return "from-yellow-400 to-orange-500";
+    if (rank === "Top 3") return "from-orange-400 to-red-500";
+    if (rank === "Top 10") return "from-purple-400 to-pink-500";
+    return "from-blue-400 to-cyan-500";
+  };
+
+  return (
+    <section className="py-8 px-4 bg-gradient-to-b from-white to-[hsl(150,30%,98%)]">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Zap className="w-6 h-6 text-[hsl(150,80%,40%)]" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              Monthly Rewards
+            </h2>
+          </div>
+          <p className="text-sm text-gray-600">
+            Real prizes from our amazing sponsors
+          </p>
+        </div>
+
+        <div className="grid gap-4">
+          {prizes.map((prize) => (
+            <Card key={prize.id} className="overflow-hidden hover:shadow-2xl transition-all duration-300">
+              <div className="flex gap-4 p-4">
+                {/* Prize Image */}
+                {prize.image_url && (
+                  <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200">
+                    <img 
+                      src={prize.image_url} 
+                      alt={prize.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Prize Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-lg mb-1">
+                        {prize.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {prize.description}
+                      </p>
+                    </div>
+                    {getRankIcon(prize.rank_requirement)}
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge className={`bg-gradient-to-r ${getRankColor(prize.rank_requirement)} text-white border-0`}>
+                      {prize.rank_requirement}
+                    </Badge>
+                    <Badge variant="outline" className="text-green-700 border-green-300">
+                      AED {prize.value_aed}
+                    </Badge>
+                    <span className="text-xs text-gray-500">
+                      by {prize.sponsor_name}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Total Prize Pool */}
+        <Card className="mt-6 p-6 bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] border-0">
+          <div className="text-center text-white">
+            <Trophy className="w-10 h-10 mx-auto mb-3" />
+            <p className="text-sm opacity-90 mb-1">Total Monthly Prize Pool</p>
+            <p className="text-3xl font-bold">
+              AED {prizes.reduce((sum, p) => sum + p.value_aed, 0).toLocaleString()}
+            </p>
+          </div>
+        </Card>
+      </div>
+    </section>
+  );
+}
