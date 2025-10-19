@@ -1,0 +1,97 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Sparkles, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export default function SponsorsSection() {
+  const sponsors = [
+    {
+      name: "Emirates Environmental Group",
+      logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=100&fit=crop",
+      category: "Environmental Partner"
+    },
+    {
+      name: "Dubai Municipality",
+      logo: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&h=100&fit=crop",
+      category: "Government Partner"
+    },
+    {
+      name: "Careem",
+      logo: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=200&h=100&fit=crop",
+      category: "Transportation Partner"
+    },
+    {
+      name: "Majid Al Futtaim",
+      logo: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200&h=100&fit=crop",
+      category: "Retail Partner"
+    },
+    {
+      name: "The Entertainer",
+      logo: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=200&h=100&fit=crop",
+      category: "Rewards Partner"
+    },
+    {
+      name: "Bee'ah",
+      logo: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=200&h=100&fit=crop",
+      category: "Waste Management Partner"
+    }
+  ];
+
+  return (
+    <section className="py-8 px-4 bg-white">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Sparkles className="w-6 h-6 text-[hsl(150,80%,40%)]" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              Powered By Our Partners
+            </h2>
+          </div>
+          <p className="text-sm text-gray-600">
+            Leading brands supporting sustainability in UAE
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {sponsors.map((sponsor, index) => (
+            <Card key={index} className="p-4 hover:shadow-lg transition-all duration-300 border-2 hover:border-[hsl(150,80%,40%)]">
+              <div className="aspect-video rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-gray-50 to-gray-100">
+                <img 
+                  src={sponsor.logo} 
+                  alt={sponsor.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <p className="font-semibold text-gray-900 text-sm mb-1">
+                {sponsor.name}
+              </p>
+              <p className="text-xs text-gray-500">
+                {sponsor.category}
+              </p>
+            </Card>
+          ))}
+        </div>
+
+        {/* Partnership CTA */}
+        <Card className="mt-6 p-6 bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] border-0">
+          <div className="text-center">
+            <Sparkles className="w-10 h-10 text-white mx-auto mb-3" />
+            <h3 className="text-xl font-bold text-white mb-2">
+              Become a Sustainability Partner
+            </h3>
+            <p className="text-sm text-white/90 mb-4">
+              Join leading brands supporting environmental action across UAE. Reach eco-conscious communities and make real impact.
+            </p>
+            <Button 
+              className="bg-white text-[hsl(150,80%,40%)] hover:bg-gray-100 font-semibold shadow-lg"
+              onClick={() => window.location.href = 'mailto:partnerships@greenspark.ae?subject=Sponsorship Inquiry'}
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Get Sponsorship Info
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </section>
+  );
+}
