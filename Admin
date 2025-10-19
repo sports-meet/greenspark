@@ -1,0 +1,351 @@
+import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowLeft, CheckCircle, XCircle, Loader2, Shield, Clock, User as UserIcon, Mail, Phone } from "lucide-react";
+import { format } from "date-fns";
+
+export default function Admin() {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    checkAccess();
+  }, []);
+
+  const checkAccess = async () => {
+    try {
+      const currentUser = await base44.auth.me();
+      setUser(currentUser);
+      
+      if (!currentUser.is_admin) {
+        alert("Access Denied - You don't have permission to access this page");
+        navigate(createPageUrl("Home"));
+      }
+    } catch (error) {
+      navigate(createPageUrl("Home"));
+    }
+    setIsLoading(false);
+  };
+
+  const { data: userActivities = [] } = useQuery({
+    queryKey: ['pending-activities'],
+    queryFn: () => base44.entities.UserActivity.filter({ status: 'pending' }),
+    enabled: !!user?.is_admin,
+    initialData: []
+  });
+
+  const { data: generalSubmissions = [] } = useQuery({
+    queryKey: ['pending-general'],
+    queryFn: () => base44.entities.GeneralSubmission.filter({ status: 'pending' }),
+    enabled: !!user?.is_admin,
+    initialData: []
+  });
+
+  const { data: activities = [] } = useQuery({
+    queryKey: ['activities'],
+    queryFn: () => base44.entities.Activity.list(),
+    initialData: []
+  });
+
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    initialData: []
+  });
+
+  const approveActivityMutation = useMutation({
+    mutationFn: async (submission) => {
+      const activity = activities.find(a => a.id === submission.activity_id);
+      const submitter = users.find(u => u.id === submission.user_id);
+      
+      await base44.entities.UserActivity.update(submission.id, {
+        status: 'approved',
+        points_awarded: activity?.points || 0,
+        reviewed_at: new Date().toISOString()
+      });
+
+      if (submitter) {
+        await base44.entities.User.update(submitter.id, {
+          points: (submitter.points || 0) + (activity?.points || 0)
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-activities'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      alert("Activity approved! ✅ Points have been awarded");
+    }
+  });
+
+  const rejectActivityMutation = useMutation({
+    mutationFn: async (submissionId) => {
+      await base44.entities.UserActivity.update(submissionId, {
+        status: 'rejected',
+        reviewed_at: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-activities'] });
+      alert("Activity rejected");
+    }
+  });
+
+  const approveGeneralMutation = useMutation({
+    mutationFn: async (submissionId) => {
+      await base44.entities.GeneralSubmission.update(submissionId, {
+        status: 'approved',
+        points_awarded: 10,
+        reviewed_at: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-general'] });
+      alert("Submission approved! ✅ 10 points awarded");
+    }
+  });
+
+  const rejectGeneralMutation = useMutation({
+    mutationFn: async (submissionId) => {
+      await base44.entities.GeneralSubmission.update(submissionId, {
+        status: 'rejected',
+        reviewed_at: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-general'] });
+      alert("Submission rejected");
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[hsl(150,80%,40%)]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[hsl(150,30%,98%)] to-white py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate(createPageUrl("Home"))}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-6 h-6 text-[hsl(150,80%,40%)]" />
+                <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              </div>
+              <p className="text-gray-600">Review and approve submissions</p>
+            </div>
+          </div>
+        </div>
+
+        <Tabs defaultValue="activities" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="activities">
+              Challenge Submissions ({userActivities.length})
+            </TabsTrigger>
+            <TabsTrigger value="general">
+              General Actions ({generalSubmissions.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="activities" className="mt-6">
+            {userActivities.length === 0 ? (
+              <Card className="p-12 text-center">
+                <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">All caught up!</h3>
+                <p className="text-gray-500">No pending challenge submissions</p>
+              </Card>
+            ) : (
+              <div className="grid gap-6">
+                {userActivities.map((submission) => {
+                  const activity = activities.find(a => a.id === submission.activity_id);
+                  const submitter = users.find(u => u.id === submission.user_id);
+                  
+                  return (
+                    <Card key={submission.id} className="overflow-hidden hover:shadow-xl transition-all">
+                      <div className="grid md:grid-cols-2 gap-6 p-6">
+                        <div>
+                          <img 
+                            src={submission.proof_image_url} 
+                            alt="Proof"
+                            className="w-full h-64 object-cover rounded-lg shadow-md"
+                          />
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <Badge className="bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white mb-2">
+                              {activity?.title || 'Unknown Activity'}
+                            </Badge>
+                            <h3 className="text-xl font-bold text-gray-900">
+                              Worth {activity?.points || 0} GreenPoints
+                            </h3>
+                          </div>
+
+                          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <Avatar className="w-10 h-10 border-2 border-[hsl(150,80%,40%)]">
+                              <AvatarImage src={submitter?.avatar_url} />
+                              <AvatarFallback className="bg-gradient-to-br from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white">
+                                {submitter?.username?.[0]?.toUpperCase() || 'U'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {submitter?.username || 'User'}
+                              </p>
+                              <p className="text-sm text-gray-500">{submitter?.email}</p>
+                            </div>
+                          </div>
+
+                          {submission.description && (
+                            <div className="p-3 bg-gray-50 rounded-lg">
+                              <p className="text-sm text-gray-700">{submission.description}</p>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <Clock className="w-4 h-4" />
+                            Submitted {format(new Date(submission.created_date), 'PPp')}
+                          </div>
+
+                          <div className="flex gap-3 pt-4">
+                            <Button
+                              onClick={() => approveActivityMutation.mutate(submission)}
+                              disabled={approveActivityMutation.isPending}
+                              className="flex-1 bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white hover:opacity-90"
+                            >
+                              {approveActivityMutation.isPending ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                              )}
+                              Approve
+                            </Button>
+                            <Button
+                              onClick={() => rejectActivityMutation.mutate(submission.id)}
+                              disabled={rejectActivityMutation.isPending}
+                              variant="destructive"
+                              className="flex-1"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="general" className="mt-6">
+            {generalSubmissions.length === 0 ? (
+              <Card className="p-12 text-center">
+                <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">All caught up!</h3>
+                <p className="text-gray-500">No pending general submissions</p>
+              </Card>
+            ) : (
+              <div className="grid gap-6">
+                {generalSubmissions.map((submission) => (
+                  <Card key={submission.id} className="overflow-hidden hover:shadow-xl transition-all">
+                    <div className="grid md:grid-cols-2 gap-6 p-6">
+                      <div>
+                        <img 
+                          src={submission.photo_url} 
+                          alt="Action proof"
+                          className="w-full h-64 object-cover rounded-lg shadow-md"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <Badge variant="outline" className="mb-2">
+                            General Submission
+                          </Badge>
+                          <h3 className="text-xl font-bold text-gray-900">
+                            +10 GreenPoints
+                          </h3>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm">
+                            <UserIcon className="w-4 h-4 text-gray-400" />
+                            <span className="font-semibold">{submission.full_name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Phone className="w-4 h-4 text-gray-400" />
+                            {submission.phone_number}
+                          </div>
+                          {submission.email && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <Mail className="w-4 h-4 text-gray-400" />
+                              {submission.email}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-700">{submission.reason}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Clock className="w-4 h-4" />
+                          Submitted {format(new Date(submission.created_date), 'PPp')}
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                          <Button
+                            onClick={() => approveGeneralMutation.mutate(submission.id)}
+                            disabled={approveGeneralMutation.isPending}
+                            className="flex-1 bg-gradient-to-r from-[hsl(150,80%,40%)] to-[hsl(170,70%,45%)] text-white hover:opacity-90"
+                          >
+                            {approveGeneralMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                            )}
+                            Approve
+                          </Button>
+                          <Button
+                            onClick={() => rejectGeneralMutation.mutate(submission.id)}
+                            disabled={rejectGeneralMutation.isPending}
+                            variant="destructive"
+                            className="flex-1"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
